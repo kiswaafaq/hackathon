@@ -14,7 +14,54 @@ interface Product {
 
 const ShopClient = () => {
   const products: Product[] = [
-    // Your product listings here
+    {
+      id: 1,
+      name: "White Wooden Chair",
+      price: 20,
+      image: "/images/white-chair.jpeg",
+    },
+    {
+      id: 2,
+      name: "Pink Velvet Chair",
+      price: 30,
+      image: "/images/pink-velvet.jpeg",
+    },
+    {
+      id: 3,
+      name: "Orange Chair",
+      price: 20,
+      image: "/images/orange-chair.jpeg",
+    },
+    {
+      id: 4,
+      name: "White Tufted Chair",
+      price: 20,
+      image: "/images/white-tuf.jpeg",
+    },
+    {
+      id: 5,
+      name: "Brown Swivel Chair",
+      price: 20,
+      image: "/images/brown-sw.jpeg",
+    },
+    {
+      id: 6,
+      name: "Brown Upholstered Chair",
+      price: 20,
+      image: "/images/brown-up.jpeg",
+    },
+    {
+      id: 7,
+      name: "Black Chair with Pillow",
+      price: 20,
+      image: "/images/black-chair.jpeg",
+    },
+    {
+      id: 8,
+      name: "Simple White Chair",
+      price: 20,
+      image: "/images/white-chair.jpeg",
+    },
   ];
 
   const [cart, setCart] = useState<Product[]>([]);

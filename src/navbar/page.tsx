@@ -45,12 +45,16 @@ const Navbar = () => {
         </ul>
 
         {/* Contact and Cart */}
-        <div className="flex items-center gap-6">
-          <p className="hidden md:block text-gray-600 text-sm">Contact: 0333-0205238</p>
-          <div className="relative bg-gray-100 border border-gray-300 rounded px-2 py-1 flex items-center">
-            <ShoppingCartIcon className="w-6 h-6 text-gray-600 cursor-pointer" />
-          </div>
-        </div>
+
+<div className="flex items-center gap-6"> 
+  <p className="hidden md:block text-gray-600 text-sm">Contact: 0333-0205238</p>
+  <div className="relative bg-gray-100 border border-gray-300 rounded px-2 py-1 flex items-center">
+    <Link href="/cart">
+      <ShoppingCartIcon className="w-6 h-6 text-gray-600 cursor-pointer" />
+    </Link>
+  </div>
+</div>
+
       </nav>
     </header>
   );
