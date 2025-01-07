@@ -1,10 +1,9 @@
 "use client";
-
 import Navbar from "@/src/navbar/page"; // Adjust path if needed
 import FeaturedProducts from "@/src/app/components/FeaturedProducts"; // Adjust path if needed
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from 'next/link';
+import Link from "next/link";
 import productsData from 'data/products.json'; // Ensure correct path to your data
 import Footer from "./footer/page";
 
@@ -19,12 +18,27 @@ interface Product {
 }
 
 const categories = [
-  { id: 'wing-chair', name: 'Wing Chair', image: '/wing-chair.jpg', products: 3584 },
-  { id: 'wooden-chair', name: 'Wooden Chair', image: '/wooden-chair.jpg', products: 157 },
-  { id: 'desk-chair', name: 'Desk Chair', image: '/desk-chair.jpg', products: 154 },
+  {
+    id: "wing-chair",
+    name: "Wing Chair",
+    image: "/wing-chair.jpg",
+    products: 3584,
+  },
+  {
+    id: "wooden-chair",
+    name: "Wooden Chair",
+    image: "/wooden-chair.jpg",
+    products: 157,
+  },
+  {
+    id: "desk-chair",
+    name: "Desk Chair",
+    image: "/desk-chair.jpg",
+    products: 154,
+  },
 ];
 
-export default function Home() {
+const Home = () => {
   const router = useRouter();
 
   const handleCategoryClick = (id: string) => {
@@ -42,7 +56,7 @@ export default function Home() {
           alt="Hero Component Image"
           width={1200}
           height={400}
-          style={{ objectFit: 'contain' }}
+          style={{ objectFit: "contain" }}
           priority
         />
       </div>
@@ -54,7 +68,7 @@ export default function Home() {
           alt="Partnership Image"
           width={1200}
           height={400}
-          style={{ objectFit: 'contain' }}
+          style={{ objectFit: "contain" }}
         />
       </div>
 
@@ -75,7 +89,7 @@ export default function Home() {
                   src={category.image}
                   alt={category.name}
                   fill
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: "cover" }}
                 />
               </div>
               <div className="p-6">
@@ -100,28 +114,42 @@ export default function Home() {
       <Footer />
     </div>
   );
-}
+};
 
 const ProductCard = ({ product }: { product: Product }) => (
   <Link href={`/product/${product.id}`} className="block">
-    <div className="border rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden">
-      {product.isNew && <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>}
-      {product.isOnSale && <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">Sale</span>}
+    <div className="border rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden relative">
+      {product.isNew && (
+        <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+          New
+        </span>
+      )}
+      {product.isOnSale && (
+        <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+          Sale
+        </span>
+      )}
       <div className="relative h-64 w-full">
         <Image
           src={product.imageUrl}
           alt={product.name}
           fill
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: "cover" }}
         />
       </div>
       <div className="p-6">
         <h2 className="text-xl font-medium truncate mb-2">{product.name}</h2>
         <div className="flex items-center">
-          <p className="text-gray-700 mr-2 bg-gray-100 px-3 py-1 rounded-md">${product.price}</p>
-          {product.originalPrice && <p className="text-gray-500 line-through">${product.originalPrice}</p>}
+          <p className="text-gray-700 mr-2 bg-gray-100 px-3 py-1 rounded-md">
+            ${product.price}
+          </p>
+          {product.originalPrice && (
+            <p className="text-gray-500 line-through">${product.originalPrice}</p>
+          )}
         </div>
       </div>
     </div>
   </Link>
 );
+
+export default Home;
