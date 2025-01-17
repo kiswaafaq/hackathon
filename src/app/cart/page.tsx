@@ -143,6 +143,8 @@ export default function CartPage() {
                     >
                         Continue Shopping
                     </button>
+            
+                
                 </div>
             </div>
         <Footer/>
