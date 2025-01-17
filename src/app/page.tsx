@@ -110,20 +110,7 @@ const Home = () => {
           ))}
         </div>
       </div>
-      <h1>Task#2 pics</h1>
-      <Image
-      src="/Excel.jpg" 
-        alt="Excel Image" 
-        width={500}      
-        height={300}      
-      />
-
-<Image
-       src="/Word%20(1).jpg"
-        alt=" Word Image" 
-        width={500}      
-        height={300}      
-      />
+      
 
 
       <Footer />
