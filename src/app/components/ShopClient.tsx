@@ -74,7 +74,7 @@ const ShopClient = () => {
   return (
     <>
       <Navbar />
-      <h1>Shop Page</h1>
+      <h1>Hi! Lets start shopping!</h1>
       <ProductGrid products={products} addToCart={addToCart} />
       <Footer />
       {cart.length > 0 && (
