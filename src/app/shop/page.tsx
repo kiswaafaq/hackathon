@@ -6,6 +6,13 @@ import Navbar from "@/navbar/page";
 import Footer from "../footer/page";
 import Image from "next/image";
 import Link from "next/link";
+import imageUrlBuilder from "@sanity/image-url";
+
+const builder = imageUrlBuilder(client);
+
+function urlFor(source: { asset: { _ref: string } }): string {
+  return builder.image(source).url();
+}
 
 interface Product {
   id: string;
@@ -22,7 +29,7 @@ interface RawProduct {
   title: string;
   price: number;
   priceWithoutDiscount?: number;
-  image?: { asset: { url: string } };
+  image?: { asset: { _ref: string } };
   badge?: string;
 }
 
@@ -35,7 +42,7 @@ const ProductsPage = () => {
       title,
       price,
       "originalPrice": priceWithoutDiscount,
-      "imageUrl": image.asset->url,
+      image,
       badge
     }`;
 
@@ -46,7 +53,7 @@ const ProductsPage = () => {
         name: product.title,
         price: product.price,
         originalPrice: product.priceWithoutDiscount,
-        imageUrl: product.image?.asset?.url || "/placeholder.jpg",
+        imageUrl: product.image ? urlFor(product.image) : "/placeholder.jpg",
         isNew: product.badge === "New",
         isOnSale: product.badge === "Sale",
       }));

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Navbar from "@/navbar/page";
 import Image from "next/image";
 import { notFound, useRouter } from "next/navigation";
-import productsData from "data/products.json";
 import Footer from "../../footer/page";
 
 interface Product {
@@ -16,21 +15,29 @@ interface Product {
     description: string;
 }
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ProductPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
 
-    // Unwrap the params promise to retrieve the product ID
-    useEffect(() => {
-        params.then(({ id }) => {
-            const foundProduct = productsData.find((p: Product) => p.id === id);
-            if (!foundProduct) {
+    // Fetch product data from the API
+    const fetchProduct = async (id: string) => {
+        try {
+            const response = await fetch(`/api/products/${id}`); // Replace with your API endpoint
+            if (!response.ok) {
                 notFound();
             } else {
-                setProduct(foundProduct);
+                const data: Product = await response.json();
+                setProduct(data);
             }
-        });
-    }, [params]);
+        } catch (error) {
+            console.error("Error fetching product data:", error);
+            notFound();
+        }
+    };
+
+    useEffect(() => {
+        fetchProduct(params.id); // Use the product ID from params
+    }, [params.id]);
 
     const handleAddToCart = () => {
         if (product) {
@@ -86,7 +93,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     </div>
                 </div>
             </div>
-       <Footer />
+            <Footer />
         </div>
     );
 }
