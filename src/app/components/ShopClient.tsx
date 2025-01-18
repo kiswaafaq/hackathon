@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import ProductGrid from './ProductGrid';
 import Footer from '../footer/page';
-import Navbar from "@/src/navbar/page";
+import Navbar from '@/navbar/page';
 
 interface Product {
   id: number;

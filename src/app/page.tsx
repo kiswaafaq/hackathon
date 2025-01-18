@@ -1,11 +1,13 @@
 "use client";
-import Navbar from "@/src/navbar/page"; // Adjust path if needed
-import FeaturedProducts from "@/src/app/components/FeaturedProducts"; // Adjust path if needed
+
+import Navbar from "@/navbar/page";
+import FeaturedProducts from "./components/FeaturedProducts";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import productsData from 'data/products.json'; // Ensure correct path to your data
 import Footer from "./footer/page";
+import { useEffect, useState } from "react";
+import { client } from "@/sanity/lib/client";
 
 interface Product {
   id: string;
@@ -15,6 +17,15 @@ interface Product {
   imageUrl: string;
   isNew?: boolean;
   isOnSale?: boolean;
+}
+
+interface RawProduct {
+  _id: string;
+  title: string;
+  price: number;
+  priceWithoutDiscount?: number;
+  image?: { asset: { url: string } };
+  badge?: string;
 }
 
 const categories = [
@@ -39,15 +50,60 @@ const categories = [
 ];
 
 const Home = () => {
+  const [products, setProducts] = useState<Product[]>([]);
   const router = useRouter();
 
+  const fetchProducts = async () => {
+    const query = `*[_type == "products"]{
+      _id,
+      title,
+      price,
+      "originalPrice": priceWithoutDiscount,
+      "imageUrl": image.asset->url,
+      badge
+    }`;
+
+    try {
+      const data: RawProduct[] = await client.fetch(query);
+      const formattedData = data
+        .filter((product) => product.title && product.price) // Ensure required fields exist
+        .map((product) => ({
+          id: product._id,
+          name: product.title,
+          price: product.price,
+          originalPrice: product.priceWithoutDiscount,
+          imageUrl: product.image?.asset?.url || "/placeholder.jpg", // Default image if missing
+          isNew: product.badge === "New",
+          isOnSale: product.badge === "Sale",
+        }));
+      setProducts(formattedData);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   const handleCategoryClick = (id: string) => {
-    router.push(`/category/${id}`); // Adjust route if needed
+    router.push(`/category/${id}`);
   };
 
   return (
     <div>
       <Navbar />
+      <h1 className="text-center text-4xl font-bold my-8">Welcome to My Store</h1>
+
+      {/* Products Section */}
+      <div className="container mx-auto p-8">
+        <h2 className="text-3xl font-bold mb-8 text-center">Our Products</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </div>
 
       {/* Hero Section */}
       <div className="flex justify-center items-center w-full bg-white py-12">
@@ -76,7 +132,7 @@ const Home = () => {
 
       {/* Top Categories Section */}
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8 text-center">Top Categories</h1>
+        <h2 className="text-3xl font-bold mb-8 text-center">Top Categories</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
           {categories.map((category) => (
             <div
@@ -93,25 +149,13 @@ const Home = () => {
                 />
               </div>
               <div className="p-6">
-                <h2 className="text-xl font-semibold mb-2">{category.name}</h2>
+                <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
                 <p className="text-gray-600">{category.products} Products</p>
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Featured Products Section */}
-      <div className="container mx-auto p-8">
-        <h2 className="text-3xl font-bold mb-8 text-center">Featured Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productsData.map((product: Product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
-      
-
 
       <Footer />
     </div>
@@ -140,7 +184,7 @@ const ProductCard = ({ product }: { product: Product }) => (
         />
       </div>
       <div className="p-6">
-        <h2 className="text-xl font-medium truncate mb-2">{product.name}</h2>
+        <h3 className="text-xl font-medium truncate mb-2">{product.name}</h3>
         <div className="flex items-center">
           <p className="text-gray-700 mr-2 bg-gray-100 px-3 py-1 rounded-md">
             ${product.price}

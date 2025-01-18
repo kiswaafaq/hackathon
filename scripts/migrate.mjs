@@ -50,7 +50,7 @@ async function uploadImageToSanity(imageUrl) {
 }
 
 // Main function to migrate data from REST API to Sanity
-async function migrateData() {
+export default async function migrateData() {
   console.log("Starting data migration...");
 
   try {
@@ -62,7 +62,7 @@ async function migrateData() {
     // Fetch products from the REST API
     const productsResponse = await fetch(`${BASE_URL}/api/products`);
     if (!productsResponse.ok) throw new Error("Failed to fetch products.");
-    const productsData = await productsResponse.json(); // Parse response to JSON
+   const productsData = await productsResponse.json(); // Parse response to JSON
 
     const categoryIdMap = {}; // Map to store migrated category IDs
 
@@ -119,5 +119,5 @@ async function migrateData() {
   }
 }
 
-// Start the migration process
-migrateData();
+
+ migrateData();
