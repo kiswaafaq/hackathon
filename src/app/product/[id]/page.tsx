@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "@/navbar/page";
 import Image from "next/image";
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useRouter, useParams } from "next/navigation";
 import Footer from "../../footer/page";
 
 interface Product {
@@ -15,8 +15,10 @@ interface Product {
     description: string;
 }
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage() {
     const router = useRouter();
+    const params = useParams(); // Use the `useParams` hook to retrieve route parameters
+    const id = params?.id; // Extract the `id` parameter safely
     const [product, setProduct] = useState<Product | null>(null);
 
     // Fetch product data from the API
@@ -36,8 +38,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
 
     useEffect(() => {
-        fetchProduct(params.id); // Use the product ID from params
-    }, [params.id]);
+        if (id) {
+            fetchProduct(id); // Use the product ID from params
+        }
+    }, [id]);
 
     const handleAddToCart = () => {
         if (product) {
@@ -59,7 +63,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
 
     if (!product) {
-        return <div>Loading...</div>; // Display a loading state while retrieving the product
+        return (
+            <div className="flex justify-center items-center h-screen">
+                {/* Add a loading spinner */}
+                <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -72,10 +83,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         <Image
                             src={product.imageUrl}
                             alt={product.name}
-                            fill
-                            style={{ objectFit: "cover" }}
-                            sizes="100vw"
+                            layout="responsive"
+                            width={500} // Set a base width
+                            height={500} // Set a base height
                             priority
+                            objectFit="cover"
                         />
                     </div>
 
@@ -83,6 +95,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <div>
                         <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
                         <p className="text-lg font-bold mb-2">${product.price}</p>
+                        {product.originalPrice && (
+                            <p className="line-through text-gray-500 text-sm mb-2">
+                                ${product.originalPrice}
+                            </p>
+                        )}
                         <p className="text-gray-700 mb-6">{product.description}</p>
                         <button
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded"

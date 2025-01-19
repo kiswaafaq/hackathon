@@ -1,8 +1,10 @@
+import Navbar from "@/navbar/page";
 
 export default function About(){
     return(
         <div>
         <div className="about-page">
+          <Navbar />
   <h1 className="about-heading">About Comforty</h1>
   <p className="about-paragraph">
     <b>Welcome to <u>Comforty</u>,</b> your one-stop destination for beautifully designed, high-quality furniture! 
