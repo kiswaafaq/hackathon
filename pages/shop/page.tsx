@@ -1,35 +1,120 @@
-import React, { useState } from 'react';
-import FilterPanel from '@/components/FilterPanel/FilterPanel';
-import RelatedProducts from '@/components/FilterPanel/RelatedProducts';
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Navbar from "@/navbar/page";
+import Footer from "@/app/footer/page";
+import FilterPanel from "@/components/FilterPanel/FilterPanel";
+import Image from "next/image";
 
 interface Product {
   id: number;
   name: string;
-  category: string;
-  description: string;
   price: number;
+  imageUrl: string;
+  description: string;
+  category: string;
 }
 
-const categories = ['Chairs', 'Sofas', 'Tables'];
+const ShopPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
 
-const allProducts: Product[] = [
-  { id: 1, name: 'Chair', category: 'Furniture', description: 'A comfortable chair ', price: 1200 },
-  { id: 2, name: 'Sofas', category: 'Furniture', description: 'A comfortable sofa', price: 15 },
-  // Add more products here
-];
+  // Fetch product data (replace with your API endpoint if needed)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
+        const data: Product[] = await response.json();
+        setProducts(data);
+        setFilteredProducts(data);
 
-const ShopPage: React.FC = () => {
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(allProducts);
+        // Extract unique categories from product data
+        const uniqueCategories = Array.from(
+          new Set(data.map((product) => product.category))
+        );
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
 
-  const handleFilter = (category: string) => {
-    const filtered = allProducts.filter((product) => product.category === category);
+    fetchProducts();
+  }, []);
+
+  // Handle search query
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Filter products based on search query
+    const filtered = products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query)
+    );
     setFilteredProducts(filtered);
+  };
+
+  // Handle filter by category
+  const handleFilter = (category: string) => {
+    if (category === "All") {
+      setFilteredProducts(products); // Show all products
+    } else {
+      const filtered = products.filter(
+        (product) => product.category === category
+      );
+      setFilteredProducts(filtered);
+    }
   };
 
   return (
     <div>
-      <FilterPanel categories={categories} onFilter={handleFilter} />
-      <RelatedProducts products={filteredProducts} />
+      <Navbar />
+      <div className="container mx-auto px-6 py-12">
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search for products..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-full p-3 border rounded-md"
+          />
+        </div>
+
+        {/* Filter Panel */}
+        <div className="mb-6">
+          <FilterPanel
+            categories={["All", ...categories]} // Add "All" as an option
+            onFilter={handleFilter}
+          />
+        </div>
+
+        {/* Product List */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Our Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="border rounded-lg p-4 shadow hover:shadow-lg"
+              >
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+                <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+                <p className="text-gray-700 mb-2">${product.price}</p>
+                <p className="text-sm text-gray-600">{product.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 };
