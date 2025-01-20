@@ -28,4 +28,10 @@
   .kpi {
     margin-bottom: 10px;
   }
+
+  @media (max-width: 768px) {
+    .product-list {
+      flex-direction: column;  /* Stack product items vertically on smaller screens */
+    }
+  }
   

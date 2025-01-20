@@ -21,14 +21,14 @@ const ShopPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
 
-  // Fetch product data (replace with your API endpoint if needed)
+  // Fetch product data
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch("/api/products");
         const data: Product[] = await response.json();
         setProducts(data);
-        setFilteredProducts(data);
+        setFilteredProducts(data); // Initially, show all products
 
         // Extract unique categories from product data
         const uniqueCategories = Array.from(
@@ -54,7 +54,7 @@ const ShopPage = () => {
         product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query)
     );
-    setFilteredProducts(filtered);
+    setFilteredProducts(filtered); // Update the displayed products
   };
 
   // Handle filter by category
@@ -79,7 +79,7 @@ const ShopPage = () => {
             type="text"
             placeholder="Search for products..."
             value={searchQuery}
-            onChange={handleSearch}
+            onChange={handleSearch} // Handle search
             className="w-full p-3 border rounded-md"
           />
         </div>
@@ -96,21 +96,27 @@ const ShopPage = () => {
         <div>
           <h2 className="text-2xl font-bold mb-6">Our Products</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="border rounded-lg p-4 shadow hover:shadow-lg"
-              >
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-                <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-                <p className="text-gray-700 mb-2">${product.price}</p>
-                <p className="text-sm text-gray-600">{product.description}</p>
-              </div>
-            ))}
+            {filteredProducts.length === 0 ? (
+              <p>No products found.</p> // Message when no products match the search
+            ) : (
+              filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="border rounded-lg p-4 shadow hover:shadow-lg"
+                >
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded-md mb-4"
+                    width={200}
+                    height={200}
+                  />
+                  <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+                  <p className="text-gray-700 mb-2">${product.price}</p>
+                  <p className="text-sm text-gray-600">{product.description}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
