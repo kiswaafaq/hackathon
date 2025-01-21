@@ -15,6 +15,9 @@ interface Product {
   category: string;
 }
 
+const sanitizeInput = (input: string): string =>
+  input.replace(/[^a-zA-Z0-9 ]/g, ""); // Sanitize input to prevent malicious data
+
 const ShopPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -26,13 +29,26 @@ const ShopPage = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch("/api/products");
-        const data: Product[] = await response.json();
-        setProducts(data);
-        setFilteredProducts(data); // Initially, show all products
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
 
-        // Extract unique categories from product data
+        const data: Product[] = await response.json();
+
+        // Sanitize product data
+        const sanitizedData = data.map((product) => ({
+          ...product,
+          name: sanitizeInput(product.name),
+          description: sanitizeInput(product.description),
+          category: sanitizeInput(product.category),
+        }));
+
+        setProducts(sanitizedData);
+        setFilteredProducts(sanitizedData); // Initially, show all products
+
+        // Extract unique categories from sanitized product data
         const uniqueCategories = Array.from(
-          new Set(data.map((product) => product.category))
+          new Set(sanitizedData.map((product) => product.category))
         );
         setCategories(uniqueCategories);
       } catch (error) {
