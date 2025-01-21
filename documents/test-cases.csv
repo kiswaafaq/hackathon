@@ -1,0 +1,3 @@
+Test Case ID,Description,Steps,Expected Result,Actual Result,Status,Remarks,
+TC001,Validate product listing,"Open homepage, view products",Products displayed,Products displayed,Passed,No issues found,
+TC002,Validate cart function,"Add item to cart, check total count",Cart updates correctly,Failed,Failed,Cart not updating,
