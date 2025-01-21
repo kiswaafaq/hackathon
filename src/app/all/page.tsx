@@ -70,6 +70,7 @@ const ProductsPage = () => {
   return (
     <div>
       <Navbar />
+      <h1> Products page without search bar and filter option </h1>
       <h1 className="text-center text-4xl font-bold my-8">Our Products</h1>
 
       <div className="container mx-auto p-8">

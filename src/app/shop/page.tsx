@@ -35,6 +35,9 @@ interface RawProduct {
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const fetchProducts = async () => {
     const query = `*[_type == "products"]{
@@ -47,7 +50,7 @@ const ProductsPage = () => {
     }`;
 
     try {
-      const data = await client.fetch<RawProduct[]>(query); // Specify type for fetch response
+      const data = await client.fetch<RawProduct[]>(query);
       const formattedProducts = data.map((product) => ({
         id: product._id,
         name: product.title,
@@ -58,6 +61,7 @@ const ProductsPage = () => {
         isOnSale: product.badge === "Sale",
       }));
       setProducts(formattedProducts);
+      setFilteredProducts(formattedProducts);
     } catch (error) {
       console.error("Failed to fetch products:", error);
     }
@@ -67,14 +71,66 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
+  // Handle search input change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    filterProducts(query, selectedCategory);
+  };
+
+  // Handle category change
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const category = event.target.value;
+    setSelectedCategory(category);
+    filterProducts(searchQuery, category);
+  };
+
+  // Filter products based on search query and selected category
+  const filterProducts = (query: string, category: string) => {
+    let filtered = products;
+
+    if (query) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(query)
+      );
+    }
+
+    if (category && category !== "all") {
+      // Assuming you have a way to categorize products, adjust this logic accordingly
+      filtered = filtered.filter(product => product.isNew && category === "new" || product.isOnSale && category === "sale");
+    }
+
+    setFilteredProducts(filtered);
+  };
+
   return (
     <div>
       <Navbar />
+      <h1>Shop page with search bar and filter page!</h1>
+      {/* Search Bar */}
+      <div className="container mx-auto p-8">
+        <input
+          type="text"
+          placeholder="Search for products..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="border rounded-lg p-2 w-full mb-4"
+        />
+        
+        {/* Category Filter */}
+        <select value={selectedCategory} onChange={handleCategoryChange} className="border rounded-lg p-2 mb-4">
+          <option value="all">All Categories</option>
+          <option value="new">New Arrivals</option>
+          <option value="sale">On Sale</option>
+          {/* Add more categories as needed */}
+        </select>
+      </div>
+
       <h1 className="text-center text-4xl font-bold my-8">Our Products</h1>
 
       <div className="container mx-auto p-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <Link href={`/product/${product.id}`} key={product.id}>
               <div className="border rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden relative">
                 {product.isNew && (

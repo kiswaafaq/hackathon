@@ -1,5 +1,5 @@
-import AnalyticDashboard from '../../components/dashboard/AnalyticDashboard.tsx';
 import React from 'react';
+import AnalyticDashboard from '../../components/dashboard/AnalyticDashboard';
 
 const DashboardPage = () => {
   const data = { sales: 12000, traffic: 5000 };
