@@ -10,9 +10,12 @@ import imageUrlBuilder from "@sanity/image-url";
 
 const builder = imageUrlBuilder(client);
 
-function urlFor(source: { asset: { _ref: string } }): string {
-  return builder.image(source).url();
-}
+const urlFor = (source: { asset: { _ref: string } } | undefined): string => {
+  if (!source?.asset?._ref) {
+    return "/placeholder.jpg";
+  }
+  return builder.image(source.asset._ref).url();
+};
 
 interface Product {
   id: string;
@@ -38,32 +41,37 @@ const ProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [cartItems, setCartItems] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
-    const query = `*[_type == "products"]{
-      _id,
-      title,
-      price,
-      "originalPrice": priceWithoutDiscount,
-      image,
-      badge
-    }`;
-
     try {
-      const data = await client.fetch<RawProduct[]>(query);
+      const data = await client.fetch<RawProduct[]>(`*[_type == "products"]{
+        _id,
+        title,
+        price,
+        "originalPrice": priceWithoutDiscount,
+        image,
+        badge
+      }`);
+
       const formattedProducts = data.map((product) => ({
         id: product._id,
         name: product.title,
         price: product.price,
         originalPrice: product.priceWithoutDiscount,
-        imageUrl: product.image ? urlFor(product.image) : "/placeholder.jpg",
+        imageUrl: urlFor(product.image),
         isNew: product.badge === "New",
         isOnSale: product.badge === "Sale",
       }));
       setProducts(formattedProducts);
       setFilteredProducts(formattedProducts);
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+      setError("Failed to load products. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,103 +79,114 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
-  // Handle search input change
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
     filterProducts(query, selectedCategory);
   };
 
-  // Handle category change
   const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const category = event.target.value;
     setSelectedCategory(category);
     filterProducts(searchQuery, category);
   };
 
-  // Filter products based on search query and selected category
   const filterProducts = (query: string, category: string) => {
     let filtered = products;
 
     if (query) {
-      filtered = filtered.filter(product =>
+      filtered = filtered.filter((product) =>
         product.name.toLowerCase().includes(query)
       );
     }
 
     if (category && category !== "all") {
-      // Assuming you have a way to categorize products, adjust this logic accordingly
-      filtered = filtered.filter(product => product.isNew && category === "new" || product.isOnSale && category === "sale");
+      filtered = filtered.filter((product) =>
+        (product.isNew && category === "new") || (product.isOnSale && category === "sale")
+      );
     }
 
     setFilteredProducts(filtered);
   };
 
+  const handleAddToCart = (product: Product) => {
+    setCartItems([...cartItems, product]);
+    alert(`${product.name} added to cart!`); // Simple alert for demo
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>;
+  }
+
   return (
     <div>
       <Navbar />
-      <h1>Shop page with search bar and filter page!</h1>
-      {/* Search Bar */}
       <div className="container mx-auto p-8">
-        <input
-          type="text"
-          placeholder="Search for products..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="border rounded-lg p-2 w-full mb-4"
-        />
-        
-        {/* Category Filter */}
-        <select value={selectedCategory} onChange={handleCategoryChange} className="border rounded-lg p-2 mb-4">
-          <option value="all">All Categories</option>
-          <option value="new">New Arrivals</option>
-          <option value="sale">On Sale</option>
-          {/* Add more categories as needed */}
-        </select>
-      </div>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+          <input
+            type="text"
+            placeholder="Search for products..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="border rounded-lg p-2 w-full md:w-1/2 mb-4 md:mb-0 md:mr-4"
+          />
+          <select
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            className="border rounded-lg p-2 w-full md:w-1/2"
+          >
+            <option value="all">All Categories</option>
+            <option value="new">New Arrivals</option>
+            <option value="sale">On Sale</option>
+          </select>
+        </div>
 
-      <h1 className="text-center text-4xl font-bold my-8">Our Products</h1>
+        <h1 className="text-center text-4xl font-bold my-8">Our Products</h1>
 
-      <div className="container mx-auto p-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <Link href={`/product/${product.id}`} key={product.id}>
-              <div className="border rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden relative">
-                {product.isNew && (
-                  <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                    New
-                  </span>
-                )}
-                {product.isOnSale && (
-                  <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                    Sale
-                  </span>
-                )}
-                <div className="relative h-64 w-full">
+            <div
+              key={product.id}
+              className="border rounded-lg shadow-md hover:shadow-lg transition duration-300"
+            >
+              <Link href={`/product/${product.id}`} className="block">
+                <div className="relative h-64 w-full overflow-hidden">
                   <Image
                     src={product.imageUrl}
                     alt={product.name}
                     fill
                     style={{ objectFit: "cover" }}
+                    sizes="100vw"
                   />
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-medium truncate mb-2">{product.name}</h3>
-                  <div className="flex items-center">
-                    <p className="text-gray-700 mr-2 bg-gray-100 px-3 py-1 rounded-md">
-                      ${product.price}
+              </Link>
+              <div className="p-6">
+                <h3 className="text-xl font-medium truncate mb-2">
+                  {product.name}
+                </h3>
+                <div className="flex items-center mb-4"> {/* Added margin bottom */}
+                  <p className="text-gray-700 mr-2">${product.price}</p>
+                  {product.originalPrice && (
+                    <p className="text-gray-500 line-through">
+                      ${product.originalPrice}
                     </p>
-                    {product.originalPrice && (
-                      <p className="text-gray-500 line-through">${product.originalPrice}</p>
-                    )}
-                  </div>
+                  )}
                 </div>
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+                >
+                  Add to Cart
+                </button>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
-
       <Footer />
     </div>
   );

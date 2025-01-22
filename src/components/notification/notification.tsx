@@ -1,21 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-const Notification = () => {
+interface NotificationProps {
+  message: string;
+  duration?: number; // Duration in milliseconds (optional)
+  onClose?: () => void; // Callback for when the notification closes (optional)
+}
+
+const Notification: React.FC<NotificationProps> = ({ message, duration = 3000, onClose }) => {
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     setShowNotification(true);
-    setTimeout(() => {
+
+    const timer = setTimeout(() => {
       setShowNotification(false);
-    }, 3000); // Hide the notification after 3 seconds
-  }, []);
+      if (onClose) onClose(); // Call onClose callback if provided
+    }, duration);
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, [duration, onClose]);
+
+  if (!showNotification) return null;
 
   return (
-    showNotification && (
-      <div className="notification">
-        <p>Hi, this is Kiswas website!</p>
-      </div>
-    )
+    <div className="notification bg-blue-500 text-white p-4 rounded-lg shadow-lg fixed top-5 right-5">
+      <p>{message}</p>
+    </div>
   );
 };
 

@@ -51,8 +51,19 @@ const Home = () => {
     };
 
     return (
-        <div className="bg-gray-50">
+        <div className="bg-blue-80">
             <Navbar />
+            <div>
+      {/* Displaying the ID and Name at the top */}
+      <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f4f4f4', fontStyle: 'italic', marginBottom: '20px' }}>
+        <p style={{ margin: 0 }}>
+          Website made by: <strong>Kiswa Afaq</strong>
+        </p>
+        <p style={{ margin: 0 }}>
+          ID: <strong>00055968</strong>
+        </p>
+      </div>
+      </div>
 
             <div className="header flex justify-between items-center p-6 bg-indigo-600 text-white">
                 <div></div>
@@ -128,10 +139,15 @@ const Home = () => {
             <div className="container mx-auto px-6 py-12">
                 <h2 className="text-3xl font-bold text-center mb-8">Explore Categories</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <Link href="/product" className="block">
+                    <Link href="/shop" className="block">
                         <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
                             <div className="relative h-64 w-full">
-                                <Image src="/category.jpg" alt="Products" fill className="object-cover" />
+                                <Image
+                                    src="/category.jpg"
+                                    alt="Products"
+                                    fill
+                                    className="object-cover"
+                                />
                             </div>
                             <div className="p-4">
                                 <h3 className="text-xl font-semibold">Our Products</h3>
@@ -143,7 +159,7 @@ const Home = () => {
             </div>
 
             <div className="container mx-auto px-6">
-                <Notification />
+                <Notification message={"Hi, this is Kiswas website!"} />
             </div>
 
             <div className="container mx-auto px-6 py-12">

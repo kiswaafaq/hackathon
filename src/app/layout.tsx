@@ -1,7 +1,6 @@
 import { Roboto, Roboto_Mono } from 'next/font/google';
 import './globals.css';
 import type { Metadata } from 'next';
-import React from 'react';
 
 const roboto = Roboto({
     weight: ['400', '700'],
@@ -23,8 +22,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" className={`${roboto.className} ${robotoMono.className}`}>
-            <body className="antialiased">
+        <html lang="en">
+            <body className={`${roboto.className} ${robotoMono.className} antialiased`}>
                 {children}
             </body>
         </html>
